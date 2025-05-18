@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Your Gallery 💖</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="file/jquery.min.js"></script>
+    <script src="file/functions.js"></script>
+    <link rel="stylesheet" href="file/default.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Cormorant+Garamond:wght@400;600&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #E6E6FA 0%, #9370DB 100%);
+            font-family: 'Cormorant Garamond', serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .greeting {
+            margin: 20px 20px 40px 20px;
+            font-size: 2em;
+            color: #333;
+            text-align: center;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            max-width: 800px;
+            line-height: 1.5;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .tinder-gallery {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .swipe-controls {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 18px;
+        }
+        
+        .swipe-btn {
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            width: 120px;
+            height: 45px;
+            font-size: 1em;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        
+        .swipe-btn:hover {
+            background: #222;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .tinder-stack {
+            position: relative;
+            width: 280px;
+            height: 400px;
+            margin: 0 auto;
+        }
+        
+        .tinder-card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            overflow: hidden;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+            will-change: transform;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            transform-origin: 50% 100%;
+        }
+        
+        .tinder-card::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 120px;
+            color: #4CAF50;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 10;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tinder-card.right-swipe::after {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0.9;
+        }
+        
+        .tinder-card.right-swipe {
+            animation: rightSwipeSuccess 0.5s ease-out forwards;
+        }
+        
+        @keyframes rightSwipeSuccess {
+            0% {
+                transform: translateX(0) rotate(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(150%) rotate(40deg);
+                opacity: 0;
+            }
+        }
+        
+        .tinder-card.removed {
+            transition: all 0.5s ease-out;
+            pointer-events: none;
+        }
+        
+        .tinder-card.next {
+            transform: translateX(120%) rotate(20deg) !important;
+            opacity: 0;
+        }
+        
+        .tinder-card.prev {
+            transform: translateX(-120%) rotate(-20deg) !important;
+            opacity: 0;
+        }
+        
+        .tinder-card:active {
+            cursor: grabbing;
+        }
+        
+        .tinder-card img {
+            width: 100%;
+            height: 88%;
+            object-fit: cover;
+            border-radius: 15px 15px 0 0;
+            background: #f8f8f8;
+        }
+        
+        .tinder-caption {
+            color: #333;
+            font-size: 1.3em;
+            text-align: center;
+            font-family: 'Great Vibes', cursive;
+            padding: 12px 0 10px 0;
+            background: #fff;
+            width: 100%;
+            border-radius: 0 0 15px 15px;
+            letter-spacing: 1px;
+        }
+        
+        #videoSection {
+            margin-top: 32px;
+            text-align: center;
+            width: 280px;
+        }
+        
+        #memVideo {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(229, 46, 113, 0.15);
+            background: #fff;
+        }
+        
+        #revealSection div:first-child {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 25px;
+        }
+        
+        #revealSection div:nth-child(2) {
+            font-family: 'Playfair Display', serif;
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+        
+        #revealBtn {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        
+        #revealBtn:hover {
+            background: #222;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        @media (max-width: 700px) {
+            .tinder-stack {
+                width: 85vw;
+                height: 55vh;
+                max-width: 280px;
+                min-height: 380px;
+            }
+            .tinder-card {
+                border-radius: 15px;
+            }
+            .tinder-card img {
+                border-radius: 15px 15px 0 0;
+            }
+            .tinder-caption {
+                border-radius: 0 0 15px 15px;
+                font-size: 0.9em;
+                padding: 8px 0 6px 0;
+            }
+        }
+        
+        .age-timer {
+            margin-top: 30px;
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            color: #333;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        
+        .age-timer-title {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: #444;
+            font-family: 'Great Vibes', cursive;
+        }
+        
+        .age-timer-numbers {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .age-unit {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 80px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .age-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #9370DB;
+        }
+        
+        .age-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="greeting">
+        She is the kind of friend who brings warmth, kindness, and laughter into every life she touches. Strong, smart, stubborn, and beautifully genuine—thank you for being by my side since 2020, for your patience, and for making every moment brighter. I hope
+        our friendship lasts for eternity ❤️‍🩹 </div> <audio id="bgMusic" loop>
+        <source src="Blue.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <div class="tinder-gallery">
+        <div class="tinder-stack" id="tinderStack">
+            <!-- Cards will be injected here -->
+        </div>
+        <div class="swipe-controls">
+            <button class="swipe-btn" id="swipePrev">&#8592; Prev</button>
+            <button class="swipe-btn" id="swipeNext">Next &#8594;</button>
+        </div>
+        <div id="revealSection" style="display:none; margin-top:32px; text-align:center;">
+            <div style="font-size:2.5em; color:#333; font-family:'Great Vibes', cursive; margin-bottom:25px;">🎁 A Small Surprise! 🎁</div>
+            <div style="font-size:1.1em; color:#666; font-family:'Playfair Display', serif; margin-bottom:25px; line-height:1.4;">The video which always makes my day...<br>Click below to reveal!</div>
+            <button id="revealBtn">Reveal Video 🎬</button>
+        </div>
+        <div id="videoSection" style="display:none; margin-top:32px; text-align:center;"> <video id="memVideo" width="320" height="240" controls poster="img.png">
+                <source src="imp.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div style="margin-top:15px; color:#333; font-size:1.4em; font-family:'Great Vibes', cursive; letter-spacing:1px;">An unforgettable memory</div>
+        </div>
+        <div id="finalMessage" style="display:none; text-align:center; margin-top:40px; opacity:0; transition: opacity 2s ease;">
+            <div style="font-size:2.8em; color:#333; font-family:'Great Vibes', cursive; margin-bottom:20px;">✨ Once again Happy Birthday Yashuu! ✨</div>
+            <div style="font-size:1.2em; color:#666; font-family:'Playfair Display', serif; line-height:1.6; max-width:600px; margin:0 auto;"> May your day be as beautiful as your heart,<br> As bright as your smile,<br> And as special as you are to me.<br> Thank you for being such an amazing friend! 💖
+            </div>
+        </div>
+        <div class="age-timer" id="ageTimer">
+            <div class="age-timer-title">Journey of Smiles & Laughter</div>
+            <div class="age-timer-numbers">
+                <div class="age-unit">
+                    <div class="age-number" id="years">0</div>
+                    <div class="age-label">Years</div>
+                </div>
+                <div class="age-unit">
+                    <div class="age-number" id="months">0</div>
+                    <div class="age-label">Months</div>
+                </div>
+                <div class="age-unit">
+                    <div class="age-number" id="days">0</div>
+                    <div class="age-label">Days</div>
+                </div>
+                <div class="age-unit">
+                    <div class="age-number" id="hours">0</div>
+                    <div class="age-label">Hours</div>
+                </div>
+                <div class="age-unit">
+                    <div class="age-number" id="minutes">0</div>
+                    <div class="age-label">Minutes</div>
+                </div>
+                <div class="age-unit">
+                    <div class="age-number" id="seconds">0</div>
+                    <div class="age-label">Seconds</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Audio initialization code
+        document.addEventListener('DOMContentLoaded', function() {
+            const bgMusic = document.getElementById('bgMusic');
+
+            // First attempt: Try to play immediately
+            const playPromise = bgMusic.play();
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        console.log('Autoplay started successfully');
+                    })
+                    .catch(error => {
+                        console.log('Autoplay prevented:', error);
+                        // Will try alternative methods
+                    });
+            }
+
+            // Second attempt: Try to play on any user interaction
+            const playOnInteraction = () => {
+                bgMusic.play()
+                    .then(() => {
+                        document.removeEventListener('click', playOnInteraction);
+                        document.removeEventListener('touchstart', playOnInteraction);
+                        document.removeEventListener('keydown', playOnInteraction);
+                    })
+                    .catch(console.error);
+            };
+
+            document.addEventListener('click', playOnInteraction);
+            document.addEventListener('touchstart', playOnInteraction);
+            document.addEventListener('keydown', playOnInteraction);
+
+            // Handle video interactions
+            const video = document.querySelector('video');
+            if (video) {
+                video.addEventListener('play', () => bgMusic.pause());
+                video.addEventListener('pause', () => bgMusic.play());
+                video.addEventListener('ended', () => bgMusic.play());
+            }
+        });
+
+        const tinderImages = [{
+            src: '1.jpg',
+            caption: 'Classy Girl'
+        }, {
+            src: '2.jpg',
+            caption: 'Beautiful Princess'
+        }, {
+            src: '3.jpg',
+            caption: 'Ahh kallani Chusta undhi povachu'
+        }, {
+            src: '4.jpg',
+            caption: 'Traditional Beauty'
+        }, {
+            src: '5.jpg',
+            caption: 'Your smile can bright up the whole town'
+        }, {
+            src: '6.jpg',
+            caption: 'Gorgeous Hair'
+        }, {
+            src: '7.jpg',
+            caption: 'Selfie Queen'
+        }, {
+            src: '8.png',
+            caption: 'Cutie Baby'
+        }];
+        const tinderStack = document.getElementById('tinderStack');
+        const videoSection = document.getElementById('videoSection');
+        let tinderCurrent = 0;
+
+        function renderTinderCards() {
+            tinderStack.innerHTML = '';
+            const card = document.createElement('div');
+            card.className = 'tinder-card';
+            card.innerHTML = `<img src="${tinderImages[tinderCurrent].src}" alt="Memory ${tinderCurrent + 1}"><div class="tinder-caption">${tinderImages[tinderCurrent].caption}</div>`;
+            tinderStack.appendChild(card);
+            addTinderSwipe(card);
+        }
+
+        function swipeNext() {
+            const cards = tinderStack.querySelectorAll('.tinder-card');
+            if (tinderCurrent < tinderImages.length - 1) {
+                const topCard = cards[0];
+                topCard.classList.add('next');
+                topCard.classList.add('removed');
+
+                setTimeout(() => {
+                    tinderCurrent++;
+                    if (tinderStack.firstChild) {
+                        tinderStack.removeChild(tinderStack.firstChild);
+                    }
+                    renderTinderCards();
+                }, 300);
+            } else {
+                tinderStack.style.display = 'none';
+                document.querySelector('.swipe-controls').style.display = 'none';
+                document.getElementById('revealSection').style.display = 'block';
+            }
+        }
+
+        function swipePrev() {
+            if (tinderCurrent > 0) {
+                const currentCard = tinderStack.querySelector('.tinder-card');
+                if (currentCard) {
+                    currentCard.classList.add('prev');
+                    currentCard.classList.add('removed');
+                }
+
+                setTimeout(() => {
+                    tinderCurrent--;
+                    if (tinderStack.firstChild) {
+                        tinderStack.removeChild(tinderStack.firstChild);
+                    }
+                    renderTinderCards();
+                }, 300);
+            }
+        }
+
+        function addTinderSwipe(card) {
+            let startX = null;
+            let startY = null;
+            let currentX = 0;
+            let currentY = 0;
+            let initialX = 0;
+            let initialY = 0;
+            let isDragging = false;
+            let startTime = 0;
+            let velocity = {
+                x: 0,
+                y: 0
+            };
+            let lastTime = 0;
+            let lastX = 0;
+            let lastY = 0;
+
+            function handleStart(e) {
+                if (isDragging) return;
+                const touch = e.touches ? e.touches[0] : e;
+                startX = touch.clientX;
+                startY = touch.clientY;
+                initialX = card.offsetLeft;
+                initialY = card.offsetTop;
+                startTime = Date.now();
+                lastTime = startTime;
+                lastX = touch.clientX;
+                lastY = touch.clientY;
+                isDragging = true;
+                requestAnimationFrame(animate);
+            }
+
+            function handleMove(e) {
+                if (!isDragging) return;
+                const touch = e.touches ? e.touches[0] : e;
+                currentX = touch.clientX - startX;
+                currentY = touch.clientY - startY;
+
+                const currentTime = Date.now();
+                const dt = currentTime - lastTime;
+                if (dt > 0) {
+                    velocity.x = (touch.clientX - lastX) / dt;
+                    velocity.y = (touch.clientY - lastY) / dt;
+                }
+                lastTime = currentTime;
+                lastX = touch.clientX;
+                lastY = touch.clientY;
+
+                e.preventDefault();
+            }
+
+            function handleEnd() {
+                if (!isDragging) return;
+                isDragging = false;
+
+                const swipeThreshold = 100;
+                const velocityThreshold = 0.5;
+                const swipeTime = Date.now() - startTime;
+                const absVelocityX = Math.abs(velocity.x);
+
+                if (Math.abs(currentX) > swipeThreshold || absVelocityX > velocityThreshold) {
+                    const direction = currentX > 0 ? 1 : -1;
+                    const rotation = direction * (10 + Math.min(Math.abs(velocity.x * 2), 30));
+                    const translateX = direction * (window.innerWidth + card.offsetWidth);
+
+                    if (direction > 0) {
+                        card.classList.add('right-swipe');
+                    }
+
+                    card.style.transition = 'all 0.5s ease-out';
+                    card.style.transform = `translate(${translateX}px, ${currentY}px) rotate(${rotation}deg)`;
+                    card.style.opacity = direction > 0 ? '1' : '0';
+                    setTimeout(() => {
+                        if (direction > 0) {
+                            swipeNext();
+                        } else {
+                            swipePrev();
+                        }
+                    }, 300);
+                } else {
+                    card.style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                    card.style.transform = '';
+                    card.style.opacity = '1';
+                }
+
+                startX = null;
+                startY = null;
+                currentX = 0;
+                currentY = 0;
+                velocity = {
+                    x: 0,
+                    y: 0
+                };
+            }
+
+            function animate() {
+                if (isDragging) {
+                    const movePercent = (currentX / card.offsetWidth) * 100;
+                    const rotateAngle = movePercent * 0.2;
+                    const scale = Math.max(0.85, Math.min(1, 1 - Math.abs(movePercent) / 500));
+                    const opacity = Math.max(0.5, Math.min(1, 1 - Math.abs(movePercent) / 100));
+
+                    card.style.transition = 'none';
+                    card.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${rotateAngle}deg) scale(${scale})`;
+                    card.style.opacity = opacity;
+
+                    requestAnimationFrame(animate);
+                }
+            }
+
+            card.addEventListener('mousedown', handleStart);
+            card.addEventListener('touchstart', handleStart, {
+                passive: true
+            });
+            window.addEventListener('mousemove', handleMove);
+            window.addEventListener('touchmove', handleMove, {
+                passive: false
+            });
+            window.addEventListener('mouseup', handleEnd);
+            window.addEventListener('touchend', handleEnd);
+            window.addEventListener('touchcancel', handleEnd);
+            card.removeEventListener('click', card.onclick);
+        }
+
+        document.getElementById('swipeNext').onclick = swipeNext;
+        document.getElementById('swipePrev').onclick = swipePrev;
+        document.getElementById('revealBtn').onclick = function() {
+            document.getElementById('revealSection').style.display = 'none';
+            videoSection.style.display = 'block';
+            const video = document.getElementById('memVideo');
+
+            // Pause background music when video starts
+            video.addEventListener('play', function() {
+                bgMusic.pause();
+            });
+
+            // Resume background music when video ends or is paused
+            video.addEventListener('pause', function() {
+                bgMusic.play();
+            });
+
+            video.addEventListener('ended', function() {
+                bgMusic.play(); // Resume background music
+                const finalMessage = document.getElementById('finalMessage');
+                const ageTimer = document.getElementById('ageTimer');
+                finalMessage.style.display = 'block';
+                setTimeout(() => {
+                    finalMessage.style.opacity = '1';
+                    // After final message fades in, show the age timer
+                    setTimeout(() => {
+                        ageTimer.style.opacity = '1';
+                        updateAge();
+                    }, 1000);
+                }, 100);
+            });
+
+            video.play();
+        };
+
+        function updateAge() {
+            const birthDate = new Date('2008-05-21T16:46:00');
+            const now = new Date();
+
+            let years = now.getFullYear() - birthDate.getFullYear();
+            let months = now.getMonth() - birthDate.getMonth();
+            let days = now.getDate() - birthDate.getDate();
+            let hours = now.getHours() - birthDate.getHours();
+            let minutes = now.getMinutes() - birthDate.getMinutes();
+            let seconds = now.getSeconds() - birthDate.getSeconds();
+
+            // Adjust for negative seconds
+            if (seconds < 0) {
+                minutes--;
+                seconds += 60;
+            }
+
+            // Adjust for negative minutes
+            if (minutes < 0) {
+                hours--;
+                minutes += 60;
+            }
+
+            // Adjust for negative hours
+            if (hours < 0) {
+                days--;
+                hours += 24;
+            }
+
+            // Adjust months and years
+            if (months < 0 || (months === 0 && days < 0)) {
+                years--;
+                months += 12;
+            }
+
+            // Adjust for negative days
+            if (days < 0) {
+                const tempDate = new Date(now.getFullYear(), now.getMonth() - 1, 0);
+                days += tempDate.getDate();
+                months--;
+                if (months < 0) {
+                    months += 12;
+                    years--;
+                }
+            }
+
+            document.getElementById('years').textContent = years;
+            document.getElementById('months').textContent = months;
+            document.getElementById('days').textContent = days;
+            document.getElementById('hours').textContent = hours;
+            document.getElementById('minutes').textContent = minutes;
+            document.getElementById('seconds').textContent = seconds;
+
+            // Update every second
+            setTimeout(updateAge, 1000);
+        }
+
+        renderTinderCards();
+    </script>
+</body>
+
+</html>
